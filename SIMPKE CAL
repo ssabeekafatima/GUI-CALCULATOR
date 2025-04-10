@@ -1,0 +1,66 @@
+from tkinter import *
+
+def create_button(master, text, row, column, command):          #function to create button
+    return Button(master, padx=16, pady=8, font=("Arial", 18),
+                text=text, command=command,
+                bg="#FFD1DC", fg="#5E2D40",
+                activebackground="#FF69B4", activeforeground="white",
+                relief="flat", bd=0).grid(row=row, column=column, padx=3, pady=3)
+
+def button_click(number):     #handles all number and operator button presses
+    global current_expression
+    current_expression += str(number)
+    display_var.set(current_expression)
+
+def clear_display():          #clear the cal display and resets the expression
+    global current_expression
+    current_expression = ""
+    display_var.set("")
+
+def calculate_result():          #evaluate the expression and show result
+    global current_expression
+    try:                                 #error handling
+        result = str(eval(current_expression))
+        display_var.set(result)
+        current_expression = ""
+    except:
+        display_var.set("Error")
+        current_expression = ""
+
+
+app = Tk()                         #main window setup
+app.title(" Simple Calculator")
+app.configure(bg="#FFEEF4")
+
+current_expression = ""            #global variable to store
+display_var = StringVar()
+# Create display entry 
+display = Entry(app, font=("Arial", 24), textvariable=display_var,
+                bd=0, insertwidth=1, justify=RIGHT,
+                bg="white", fg="#5E2D40",
+                highlightthickness=0)
+display.grid(columnspan=4, pady=15, padx=10, ipady=12, sticky="ew")
+
+for i in range(1, 10):                #Create number buttons (0-9)
+    create_button(app, str(i), (i-1)//3 + 1, (i-1)%3, lambda num=i: button_click(num))
+ 
+ #operator buttons
+operators = [
+    ("+", 1, 3), ("-", 2, 3), ("*", 3, 3), 
+    ("/", 4, 3), ("0", 4, 0), ("C", 4, 1), 
+    ("=", 4, 2)
+]
+
+for text, row, col in operators:
+    if text == "C":                                       #Calls clear_display
+        create_button(app, text, row, col, clear_display)
+    elif text == "=":                                      #Calls calculate_result
+        Button(app, text=text, command=calculate_result,
+              padx=16, pady=8, font=("Arial", 18),
+              bg="#FF69B4", fg="white",
+              activebackground="#FF85A2", relief="flat", bd=0
+              ).grid(row=row, column=col, padx=3, pady=3)
+    else:                                               #Capture the current text 
+        create_button(app, text, row, col, lambda t=text: button_click(t))
+
+app.mainloop()
